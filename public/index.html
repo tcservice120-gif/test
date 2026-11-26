@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>myAIS - ระบบตรวจสอบยอดค่าใช้จ่ายโทรศัพท์</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Prompt:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-icon">📱</div>
+        <div>
+          <h1>myAIS</h1>
+          <p>ระบบตรวจสอบยอดค่าใช้จ่ายและประวัติบิลโทรศัพท์</p>
+        </div>
+      </div>
+      <nav class="mode-switch" aria-label="สลับโหมดการใช้งาน">
+        <button id="btnUserMode" class="mode-btn active" type="button">
+          👤 ส่วนผู้ใช้ (User)
+        </button>
+        <button id="btnAdminMode" class="mode-btn" type="button">
+          🛠️ ส่วนผู้ดูแลระบบ (Admin)
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <!-- ==================== USER VIEW ==================== -->
+    <section id="userView" class="view-section">
+      <div class="card search-card">
+        <h2>ตรวจสอบยอดค่าบริการโทรศัพท์</h2>
+        <p class="subtitle">กรอกหมายเลขโทรศัพท์มือถือเพื่อดูยอดหนี้ค้างชำระ เดือนที่ค้างจ่าย และประวัติการชำระบิล</p>
+
+        <form id="userSearchForm" class="search-form">
+          <div class="input-group">
+            <input
+              id="phoneInput"
+              type="tel"
+              inputmode="numeric"
+              placeholder="กรอกเบอร์โทรศัพท์ เช่น 0812345678 หรือ 081-234-5678"
+              autocomplete="off"
+              required
+            />
+            <button type="submit" class="btn btn-primary">ตรวจสอบยอด</button>
+          </div>
+        </form>
+
+        <div class="sample-numbers">
+          <span>เบอร์ตัวอย่างสำหรับทดสอบ:</span>
+          <button type="button" class="pill-btn" data-phone="0812345678">081-234-5678 (ค้าง 2 เดือน)</button>
+          <button type="button" class="pill-btn" data-phone="0898765432">089-876-5432 (จ่ายครบ)</button>
+          <button type="button" class="pill-btn" data-phone="0623456789">062-345-6789 (ค้าง 3 เดือน)</button>
+          <button type="button" class="pill-btn" data-phone="0911112222">091-111-2222 (ค้าง 1 เดือน)</button>
+        </div>
+
+        <div id="userError" class="alert alert-error hidden"></div>
+      </div>
+
+      <div id="userResult" class="hidden">
+        <!-- Subscriber & Debt Summary -->
+        <div class="summary-grid">
+          <div class="card info-card">
+            <div class="card-label">ข้อมูลหมายเลขโทรศัพท์</div>
+            <div class="subscriber-phone" id="resPhone">-</div>
+            <div class="subscriber-meta">
+              <span id="resName">-</span> • <span id="resPlan">-</span>
+            </div>
+          </div>
+
+          <div class="card debt-card" id="debtCard">
+            <div class="card-label">ยอดหนี้ค้างชำระทั้งหมด</div>
+            <div class="debt-amount" id="resOutstanding">฿0.00</div>
+            <div class="debt-status" id="resDebtStatus">-</div>
+          </div>
+
+          <div class="card paid-card">
+            <div class="card-label">ยอดที่ชำระแล้วทั้งหมด</div>
+            <div class="paid-amount" id="resPaidTotal">฿0.00</div>
+            <div class="paid-meta" id="resPaidCount">0 เดือน</div>
+          </div>
+        </div>
+
+        <!-- Overdue Months Highlight -->
+        <div id="overdueBox" class="card overdue-box hidden">
+          <div class="overdue-header">
+            <h3>⚠️ รายการเดือนที่ค้างชำระ</h3>
+            <span id="overdueBadge" class="badge badge-danger">ค้างชำระ</span>
+          </div>
+          <div id="overdueList" class="overdue-list"></div>
+        </div>
+
+        <div id="allClearBox" class="card clear-box hidden">
+          <h3>✅ ไม่มียอดค้างชำระ</h3>
+          <p>หมายเลขนี้ชำระค่าบริการครบถ้วนทุกงวดแล้ว</p>
+        </div>
+
+        <!-- Bill History Table -->
+        <div class="card">
+          <div class="table-header">
+            <h3>ประวัติบิลค่าใช้จ่ายรายเดือน</h3>
+            <div class="filter-tabs" id="userFilterTabs">
+              <button type="button" class="tab-btn active" data-filter="all">ทั้งหมด</button>
+              <button type="button" class="tab-btn" data-filter="unpaid">ค้างชำระ</button>
+              <button type="button" class="tab-btn" data-filter="paid">ชำระแล้ว</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>รอบบิล (เดือน/ปี)</th>
+                  <th>ยอดเงิน</th>
+                  <th>วันครบกำหนด</th>
+                  <th>สถานะ</th>
+                  <th>วันที่ชำระ</th>
+                  <th>หมายเหตุ</th>
+                </tr>
+              </thead>
+              <tbody id="userBillsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ADMIN VIEW ==================== -->
+    <section id="adminView" class="view-section hidden">
+      <!-- Admin Login -->
+      <div id="adminLoginCard" class="card login-card">
+        <h2>เข้าสู่ระบบผู้ดูแลระบบ (Admin)</h2>
+        <p class="subtitle">กรุณากรอกรหัสผ่านผู้ดูแลระบบเพื่อจัดการข้อมูลเบอร์โทรและบิลรายเดือน</p>
+        <form id="adminLoginForm" class="login-form">
+          <input
+            id="adminPasswordInput"
+            type="password"
+            placeholder="รหัสผ่านผู้ดูแลระบบ"
+            required
+          />
+          <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
+        </form>
+        <p class="hint">รหัสผ่านทดสอบ: <code>admin1234</code></p>
+        <div id="adminLoginError" class="alert alert-error hidden"></div>
+      </div>
+
+      <!-- Admin Dashboard -->
+      <div id="adminDashboard" class="hidden">
+        <div class="admin-topbar">
+          <div>
+            <h2>แดชบอร์ดผู้ดูแลระบบ</h2>
+            <p class="subtitle">จัดการข้อมูลผู้ใช้ เพิ่มบิลรายเดือน และอัปเดตสถานะการชำระเงิน</p>
+          </div>
+          <button id="btnAdminLogout" type="button" class="btn btn-outline">ออกจากระบบ</button>
+        </div>
+
+        <!-- Admin Stats -->
+        <div class="stats-grid">
+          <div class="card stat-card">
+            <div class="card-label">จำนวนเบอร์ในระบบ</div>
+            <div class="stat-value" id="statSubscribers">0</div>
+          </div>
+          <div class="card stat-card">
+            <div class="card-label">ยอดค้างชำระรวม</div>
+            <div class="stat-value text-danger" id="statOutstanding">฿0</div>
+          </div>
+          <div class="card stat-card">
+            <div class="card-label">บิลค้างชำระ (รายการ)</div>
+            <div class="stat-value text-warning" id="statUnpaidCount">0</div>
+          </div>
+          <div class="card stat-card">
+            <div class="card-label">ยอดที่เก็บได้แล้ว</div>
+            <div class="stat-value text-success" id="statCollected">฿0</div>
+          </div>
+        </div>
+
+        <!-- Admin Forms -->
+        <div class="forms-grid">
+          <div class="card">
+            <h3>➕ เพิ่มหมายเลขโทรศัพท์ใหม่</h3>
+            <form id="addSubscriberForm" class="stack-form">
+              <label>
+                เบอร์โทรศัพท์
+                <input id="newSubPhone" type="tel" placeholder="เช่น 0851234567" required />
+              </label>
+              <label>
+                ชื่อเจ้าของเบอร์
+                <input id="newSubName" type="text" placeholder="เช่น กิตติพงษ์ วงศ์ดี" required />
+              </label>
+              <label>
+                แพ็กเกจ
+                <input id="newSubPlan" type="text" placeholder="เช่น 5G Max 599" value="Standard 499" />
+              </label>
+              <button type="submit" class="btn btn-primary">บันทึกเบอร์โทร</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>🧾 ออกบิลค่าใช้จ่ายรายเดือน</h3>
+            <form id="addBillForm" class="stack-form">
+              <label>
+                เลือกเบอร์โทรศัพท์
+                <select id="billPhoneSelect" required></select>
+              </label>
+              <div class="form-row">
+                <label>
+                  เดือน
+                  <select id="billMonthSelect" required>
+                    <option value="1">มกราคม</option>
+                    <option value="2">กุมภาพันธ์</option>
+                    <option value="3">มีนาคม</option>
+                    <option value="4">เมษายน</option>
+                    <option value="5">พฤษภาคม</option>
+                    <option value="6">มิถุนายน</option>
+                    <option value="7">กรกฎาคม</option>
+                    <option value="8">สิงหาคม</option>
+                    <option value="9">กันยายน</option>
+                    <option value="10">ตุลาคม</option>
+                    <option value="11" selected>พฤศจิกายน</option>
+                    <option value="12">ธันวาคม</option>
+                  </select>
+                </label>
+                <label>
+                  ปี (พ.ศ.)
+                  <input id="billYearInput" type="number" value="2569" min="2560" max="2600" required />
+                </label>
+              </div>
+              <div class="form-row">
+                <label>
+                  ยอดเงิน (บาท)
+                  <input id="billAmountInput" type="number" min="1" step="0.01" placeholder="599" required />
+                </label>
+                <label>
+                  สถานะเริ่มต้น
+                  <select id="billStatusSelect">
+                    <option value="unpaid">ค้างชำระ</option>
+                    <option value="paid">ชำระแล้ว</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-row">
+                <label>
+                  วันครบกำหนด
+                  <input id="billDueDateInput" type="date" />
+                </label>
+                <label>
+                  หมายเหตุ
+                  <input id="billNoteInput" type="text" placeholder="เช่น ค่าบริการรายเดือน" />
+                </label>
+              </div>
+              <button type="submit" class="btn btn-primary">สร้างบิล</button>
+            </form>
+          </div>
+        </div>
+
+        <div id="adminFeedback" class="alert hidden"></div>
+
+        <!-- Admin Bills Table -->
+        <div class="card">
+          <div class="table-header">
+            <h3>รายการบิลทั้งหมดในระบบ</h3>
+            <div class="admin-filters">
+              <input id="adminSearchInput" type="text" placeholder="ค้นหาเบอร์โทร..." />
+              <select id="adminStatusFilter">
+                <option value="all">ทุกสถานะ</option>
+                <option value="unpaid">เฉพาะค้างชำระ</option>
+                <option value="paid">เฉพาะชำระแล้ว</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>เบอร์โทร</th>
+                  <th>เจ้าของเบอร์</th>
+                  <th>รอบบิล</th>
+                  <th>ยอดเงิน</th>
+                  <th>ครบกำหนด</th>
+                  <th>สถานะ</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="adminBillsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

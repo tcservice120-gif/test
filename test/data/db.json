@@ -1,0 +1,185 @@
+{
+  "subscribers": [
+    {
+      "phone": "0812345678",
+      "name": "สมชาย ใจดี",
+      "plan": "5G Max Speed 599"
+    },
+    {
+      "phone": "0898765432",
+      "name": "สมหญิง รักสงบ",
+      "plan": "Smart Net 399"
+    },
+    {
+      "phone": "0623456789",
+      "name": "วิชัย มั่งมี",
+      "plan": "Unlimited Pro 899"
+    },
+    {
+      "phone": "0911112222",
+      "name": "นภา สดใส",
+      "plan": "Starter 299"
+    },
+    {
+      "phone": "0815894565",
+      "name": "มาเตโอ",
+      "plan": "Standard 499"
+    }
+  ],
+  "bills": [
+    {
+      "id": "b-101",
+      "phone": "0812345678",
+      "month": 7,
+      "year": 2569,
+      "amount": 599,
+      "dueDate": "2026-08-05",
+      "status": "paid",
+      "paidAt": "2026-08-03",
+      "note": "ชำระผ่าน Mobile Banking"
+    },
+    {
+      "id": "b-102",
+      "phone": "0812345678",
+      "month": 8,
+      "year": 2569,
+      "amount": 599,
+      "dueDate": "2026-09-05",
+      "status": "paid",
+      "paidAt": "2026-09-04",
+      "note": "ชำระผ่าน Mobile Banking"
+    },
+    {
+      "id": "b-103",
+      "phone": "0812345678",
+      "month": 9,
+      "year": 2569,
+      "amount": 642,
+      "dueDate": "2026-10-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "รวมค่าโทรส่วนเกิน 43 บาท"
+    },
+    {
+      "id": "b-104",
+      "phone": "0812345678",
+      "month": 10,
+      "year": 2569,
+      "amount": 599,
+      "dueDate": "2026-11-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "ค่าบริการรายเดือนปกติ"
+    },
+    {
+      "id": "b-201",
+      "phone": "0898765432",
+      "month": 8,
+      "year": 2569,
+      "amount": 399,
+      "dueDate": "2026-09-05",
+      "status": "paid",
+      "paidAt": "2026-09-01",
+      "note": "หักบัญชีอัตโนมัติ"
+    },
+    {
+      "id": "b-202",
+      "phone": "0898765432",
+      "month": 9,
+      "year": 2569,
+      "amount": 399,
+      "dueDate": "2026-10-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "หักบัญชีอัตโนมัติ"
+    },
+    {
+      "id": "b-203",
+      "phone": "0898765432",
+      "month": 10,
+      "year": 2569,
+      "amount": 399,
+      "dueDate": "2026-11-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "หักบัญชีอัตโนมัติ"
+    },
+    {
+      "id": "b-301",
+      "phone": "0623456789",
+      "month": 6,
+      "year": 2569,
+      "amount": 899,
+      "dueDate": "2026-07-05",
+      "status": "paid",
+      "paidAt": "2026-07-05",
+      "note": "ชำระผ่านเคาน์เตอร์"
+    },
+    {
+      "id": "b-302",
+      "phone": "0623456789",
+      "month": 7,
+      "year": 2569,
+      "amount": 899,
+      "dueDate": "2026-08-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "ค้างชำระ"
+    },
+    {
+      "id": "b-303",
+      "phone": "0623456789",
+      "month": 8,
+      "year": 2569,
+      "amount": 950,
+      "dueDate": "2026-09-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "ค้างชำระ + แพ็กเกจเสริม"
+    },
+    {
+      "id": "b-304",
+      "phone": "0623456789",
+      "month": 9,
+      "year": 2569,
+      "amount": 899,
+      "dueDate": "2026-10-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "ค้างชำระ"
+    },
+    {
+      "id": "b-401",
+      "phone": "0911112222",
+      "month": 9,
+      "year": 2569,
+      "amount": 299,
+      "dueDate": "2026-10-05",
+      "status": "paid",
+      "paidAt": "2026-10-04",
+      "note": "PromptPay"
+    },
+    {
+      "id": "b-402",
+      "phone": "0911112222",
+      "month": 10,
+      "year": 2569,
+      "amount": 299,
+      "dueDate": "2026-11-05",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "รอชำระ"
+    },
+    {
+      "id": "b-1795666150582-113",
+      "phone": "0815894565",
+      "month": 5,
+      "year": 2570,
+      "amount": 10000,
+      "dueDate": "2026-11-26",
+      "status": "unpaid",
+      "paidAt": null,
+      "note": "ควย"
+    }
+  ]
+}
